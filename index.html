@@ -3,7 +3,6 @@
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AR-CeTing Pro - Solusi Stunting 2045</title>
-
     <link rel="icon" type="image/x-icon" href="favicon.ico">
 
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
@@ -40,7 +39,6 @@
         will-change: transform;
       }
       
-      /* Tombol Minimize Baru - Bentuk Chevron yang Jelas Bisa Di-tap */
       #minimize-btn {
         position: absolute; top: -20px; left: 50%; transform: translateX(-50%);
         width: 40px; height: 40px;
@@ -53,10 +51,8 @@
 
       #scan-status { font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; margin: 10px 0; color: var(--danger); text-align: center; }
 
-      /* Collapsible Logic */
       #collapsible-content { transition: opacity 0.3s ease, transform 0.4s ease; opacity: 1; }
       
-      /* State saat panel dilipat */
       #ui-panel.minimized {
         transform: translateX(-50%) translateY(calc(100% - 110px));
       }
@@ -70,14 +66,12 @@
       .food-btn.unlocked { background: rgba(0,0,0,0.4); color: white; cursor: pointer; pointer-events: auto; }
       .food-btn.active { background: var(--primary); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(46,204,113,0.3); }
 
-      /* Progress Bar */
       .status-box { display: flex; justify-content: space-between; align-items: center; color: white; font-size: 12px; margin-bottom: 8px; }
       #progress-wrap { width: 100%; background: rgba(255,255,255,0.1); height: 10px; border-radius: 5px; overflow: hidden; position: relative; }
       #progress-fill { width: 0%; height: 100%; background: var(--secondary); transition: 0.6s ease; }
 
       #msg-box { padding: 10px; border-radius: 12px; margin-top: 10px; font-size: 11px; font-weight: bold; display: none; text-align: center; animation: slideUp 0.3s; }
 
-      /* Eye Button */
       #eye-btn { position: absolute; top: 20px; right: 20px; width: 45px; height: 45px; background: var(--glass); backdrop-filter: blur(5px); border-radius: 50%; border: 1px solid rgba(255,255,255,0.3); color: white; display: flex; align-items: center; justify-content: center; font-size: 20px; z-index: 101; }
 
       @keyframes spin { 100% { transform: rotate(360deg); } }
@@ -99,7 +93,6 @@
 
     <div id="ui-panel">
       <div id="minimize-btn" onclick="toggleMinimize()">▾</div>
-
       <div id="scan-status">⚠️ Piring belum terdeteksi</div>
 
       <div class="status-box">
@@ -112,27 +105,27 @@
       <div id="collapsible-content">
         <div class="btn-grid">
           <div class="category-label">🍚 Makanan Pokok (35%)</div>
-          <button class="food-btn" id="btn-nasi" onclick="hapticToggle('nasi', 35)">Nasi</button>
-          <button class="food-btn" id="btn-ubi" onclick="hapticToggle('ubi', 35)">Ubi</button>
-          <button class="food-btn" id="btn-kentang" onclick="hapticToggle('kentang', 35)">Kentang</button>
-          <button class="food-btn" id="btn-roti" onclick="hapticToggle('roti', 35)">Roti</button>
+          <button class="food-btn" id="btn-nasi" onclick="hapticToggle('nasi', 35, 'pokok')">Nasi</button>
+          <button class="food-btn" id="btn-ubi" onclick="hapticToggle('ubi', 35, 'pokok')">Ubi</button>
+          <button class="food-btn" id="btn-kentang" onclick="hapticToggle('kentang', 35, 'pokok')">Kentang</button>
+          <button class="food-btn" id="btn-roti" onclick="hapticToggle('roti', 35, 'pokok')">Roti</button>
 
           <div class="category-label">🍳 Lauk-Pauk (15%)</div>
-          <button class="food-btn" id="btn-telur" onclick="hapticToggle('telur', 15)">Telur</button>
-          <button class="food-btn" id="btn-ayam" onclick="hapticToggle('ayam', 15)">Ayam</button>
-          <button class="food-btn" id="btn-ikan" onclick="hapticToggle('ikan', 15)">Ikan</button>
-          <button class="food-btn" id="btn-daging" onclick="hapticToggle('daging', 15)">Daging</button>
+          <button class="food-btn" id="btn-telur" onclick="hapticToggle('telur', 15, 'lauk')">Telur</button>
+          <button class="food-btn" id="btn-ayam" onclick="hapticToggle('ayam', 15, 'lauk')">Ayam</button>
+          <button class="food-btn" id="btn-ikan" onclick="hapticToggle('ikan', 15, 'lauk')">Ikan</button>
+          <button class="food-btn" id="btn-daging" onclick="hapticToggle('daging', 15, 'lauk')">Daging</button>
 
           <div class="category-label">🥬 Sayuran (35%)</div>
-          <button class="food-btn" id="btn-kol" onclick="hapticToggle('kol', 35)">Kol</button>
-          <button class="food-btn" id="btn-wortel" onclick="hapticToggle('wortel', 35)">Wortel</button>
-          <button class="food-btn" id="btn-brokoli" onclick="hapticToggle('brokoli', 35)">Brokoli</button>
+          <button class="food-btn" id="btn-kol" onclick="hapticToggle('kol', 35, 'sayur')">Kol</button>
+          <button class="food-btn" id="btn-wortel" onclick="hapticToggle('wortel', 35, 'sayur')">Wortel</button>
+          <button class="food-btn" id="btn-brokoli" onclick="hapticToggle('brokoli', 35, 'sayur')">Brokoli</button>
 
           <div class="category-label">🍊 Buah-Buahan (15%)</div>
-          <button class="food-btn" id="btn-jeruk" onclick="hapticToggle('jeruk', 15)">Jeruk</button>
-          <button class="food-btn" id="btn-pisang" onclick="hapticToggle('pisang', 15)">Pisang</button>
-          <button class="food-btn" id="btn-apel" onclick="hapticToggle('apel', 15)">Apel</button>
-          <button class="food-btn" id="btn-semangka" onclick="hapticToggle('semangka', 15)">Semangka</button>
+          <button class="food-btn" id="btn-jeruk" onclick="hapticToggle('jeruk', 15, 'buah')">Jeruk</button>
+          <button class="food-btn" id="btn-pisang" onclick="hapticToggle('pisang', 15, 'buah')">Pisang</button>
+          <button class="food-btn" id="btn-apel" onclick="hapticToggle('apel', 15, 'buah')">Apel</button>
+          <button class="food-btn" id="btn-semangka" onclick="hapticToggle('semangka', 15, 'buah')">Semangka</button>
         </div>
 
         <div style="display:flex; justify-content:space-between; align-items:center; margin-top:15px;">
@@ -177,6 +170,8 @@
     <script>
       let totalAKG = 0;
       let activeItems = {}; 
+      // Variabel baru untuk melacak jumlah item per kategori
+      let categoryCounts = { pokok: 0, lauk: 0, sayur: 0, buah: 0 };
       let totalUIVisible = true;
       let isMinimized = false;
 
@@ -209,8 +204,6 @@
         const panel = document.getElementById('ui-panel');
         isMinimized = !isMinimized;
         panel.classList.toggle('minimized', isMinimized);
-        
-        // Ganti icon panah
         document.getElementById('minimize-btn').innerText = isMinimized ? '▲' : '▼';
       }
 
@@ -220,7 +213,8 @@
         document.getElementById('eye-btn').innerText = totalUIVisible ? '👁️' : '📲';
       }
 
-      function hapticToggle(item, akg) {
+      // Fungsi hapticToggle sekarang menerima kategori
+      function hapticToggle(item, akg, category) {
         if (window.navigator.vibrate) window.navigator.vibrate(50);
         const obj = document.querySelector(`#obj-${item}`);
         const btn = document.querySelector(`#btn-${item}`);
@@ -229,11 +223,13 @@
           obj.setAttribute('visible', true);
           totalAKG += akg;
           activeItems[item] = true;
+          categoryCounts[category]++; // Tambah hitungan kategori
           btn.classList.add('active');
         } else {
           obj.setAttribute('visible', false);
           totalAKG -= akg;
           activeItems[item] = false;
+          categoryCounts[category]--; // Kurangi hitungan kategori
           btn.classList.remove('active');
         }
         updateLogic();
@@ -251,26 +247,46 @@
 
         msg.style.display = totalAKG === 0 ? 'none' : 'block';
 
-        if (totalAKG === 100) {
-          bar.style.background = '#2ecc71';
-          msg.innerText = "✅ Menu Sesuai Standar!";
+        // Logika baru: Cek apakah ada kategori yang isinya lebih dari 1
+        let isIncorrectSelection = false;
+        for (let cat in categoryCounts) {
+          if (categoryCounts[cat] > 1) {
+            isIncorrectSelection = true;
+            break;
+          }
+        }
+
+        if (isIncorrectSelection) {
+          bar.style.background = '#e74c3c'; // Merah
+          msg.innerText = "🚨 Pemilihan menu kurang tepat! Pilih 1 item dari tiap kategori agar gizi seimbang.";
+          msg.style.backgroundColor = 'rgba(231, 76, 60, 0.8)';
+          msg.style.color = 'white';
+          status.innerText = "⚠️ Menu Tidak Seimbang";
+        } else if (totalAKG === 100) {
+          bar.style.background = '#2ecc71'; // Hijau
+          msg.innerText = "✅ Menu Sesuai Standar Isi Piringku!";
           msg.style.backgroundColor = 'rgba(46, 204, 113, 0.8)';
+          msg.style.color = 'white';
           status.innerText = "⭐ Nutrisi Sempurna";
         } else if (totalAKG < 100) {
-          bar.style.background = '#3498db';
-          msg.innerText = "⚠️ Menu Kurang Gizi";
+          bar.style.background = '#3498db'; // Biru
+          msg.innerText = "⚠️ Menu Anda kurang dari Angka Kecukupan Gizi.";
           msg.style.backgroundColor = 'rgba(52, 152, 219, 0.8)';
+          msg.style.color = 'white';
           status.innerText = "📈 Menuju Seimbang";
         } else {
-          bar.style.background = '#e74c3c';
-          msg.innerText = "🚨 Porsi Berlebihan!";
+          bar.style.background = '#e74c3c'; // Merah
+          msg.innerText = "🚨 Porsi Melebihi AKG Balita!";
           msg.style.backgroundColor = 'rgba(231, 76, 60, 0.8)';
+          msg.style.color = 'white';
           status.innerText = "⚠️ Porsi Berlebih";
         }
       }
 
       function resetApp() {
         totalAKG = 0;
+        // Reset hitungan kategori
+        categoryCounts = { pokok: 0, lauk: 0, sayur: 0, buah: 0 };
         Object.keys(activeItems).forEach(k => {
           if (activeItems[k]) {
             document.querySelector(`#obj-${k}`).setAttribute('visible', false);
