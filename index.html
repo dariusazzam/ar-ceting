@@ -26,45 +26,39 @@
       #overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to bottom, rgba(0,0,0,0.7), rgba(0,0,0,0.9)); z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; text-align: center; padding: 20px; box-sizing: border-box; transition: 0.5s; }
       #overlay h2 { margin: 0; font-size: 28px; color: var(--primary); }
 
-      /* UI Panel - Sempurnakan Transisi agar Ringan */
+      /* UI Panel */
       #ui-panel {
         position: absolute; bottom: 25px; left: 50%; transform: translateX(-50%);
         width: 92%; max-width: 420px; z-index: 100;
         background: var(--glass); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
         border: 1px solid rgba(255,255,255,0.2); border-radius: 24px; padding: 15px;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.4);
-        /* Gunakan cubic-bezier untuk efek spring/pegas */
+        box-shadow: 0 10px 40px rgba(0,0,0,0.4); 
         transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s ease;
         will-change: transform;
       }
       
-      /* Handle Drawer - Dibuat lebih modern */
+      /* Tombol Minimize Baru - Bentuk Chevron yang Jelas Bisa Di-tap */
       #minimize-btn {
-        width: 50px; height: 5px; margin: 0 auto 15px;
-        background: rgba(255,255,255,0.4); border-radius: 10px;
-        cursor: pointer; transition: background 0.3s;
-      }
-      #minimize-btn:hover { background: rgba(255,255,255,0.7); }
-
-      #scan-status { font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; color: var(--danger); text-align: center; }
-
-      /* Logic Sembunyikan Konten: Gunakan Opacity & Pointer Events */
-      #collapsible-content { 
-        transition: opacity 0.3s ease, transform 0.4s ease;
-        opacity: 1;
+        position: absolute; top: -20px; left: 50%; transform: translateX(-50%);
+        width: 40px; height: 40px;
+        background: var(--dark); border: 2px solid var(--glass); border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        color: white; font-size: 18px; cursor: pointer; z-index: 102;
+        transition: transform 0.3s ease;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.3);
       }
 
-      /* State Minimized: Geser panel ke bawah, sisakan bar atas */
-      #ui-panel.minimized #collapsible-content { 
-        opacity: 0; 
-        pointer-events: none;
-        transform: translateY(20px);
-      }
+      #scan-status { font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; margin: 10px 0; color: var(--danger); text-align: center; }
 
-      /* Ukuran dinamis saat minimized (hitung manual agar pas di bar atas) */
+      /* Collapsible Logic */
+      #collapsible-content { transition: opacity 0.3s ease, transform 0.4s ease; opacity: 1; }
+      
+      /* State saat panel dilipat */
       #ui-panel.minimized {
-        transform: translateX(-50%) translateY(calc(100% - 100px));
+        transform: translateX(-50%) translateY(calc(100% - 110px));
       }
+      #ui-panel.minimized #collapsible-content { opacity: 0; pointer-events: none; transform: translateY(20px); }
+      #ui-panel.minimized #minimize-btn { transform: translateX(-50%) rotate(180deg); }
 
       .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; max-height: 250px; overflow-y: auto; padding-right: 5px; }
       .category-label { grid-column: span 2; color: #ddd; font-size: 11px; font-weight: bold; text-align: left; margin-top: 8px; text-transform: uppercase; border-left: 2px solid var(--primary); padding-left: 5px; }
@@ -101,7 +95,7 @@
     <div id="eye-btn" onclick="toggleTotalUI()">👁️</div>
 
     <div id="ui-panel">
-      <div id="minimize-btn" onclick="toggleMinimize()"></div>
+      <div id="minimize-btn" onclick="toggleMinimize()">▾</div>
 
       <div id="scan-status">⚠️ Piring belum terdeteksi</div>
 
@@ -149,7 +143,6 @@
       <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
       <a-light type="ambient" intensity="1"></a-light>
       <a-light type="directional" position="0 10 0" intensity="0.5"></a-light>
-
       <a-entity mindar-image-target="targetIndex: 0" id="ar-target">
         <a-gltf-model src="model/piring.glb" scale="2.6 2.6 2.6" rotation="90 180 0"></a-gltf-model>
         <a-entity position="-0.4 -0.4 0.1">
@@ -213,6 +206,9 @@
         const panel = document.getElementById('ui-panel');
         isMinimized = !isMinimized;
         panel.classList.toggle('minimized', isMinimized);
+        
+        // Ganti icon panah
+        document.getElementById('minimize-btn').innerText = isMinimized ? '▲' : '▼';
       }
 
       function toggleTotalUI() {
