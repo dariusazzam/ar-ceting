@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AR-CeTing - Edukasi Gizi Interaktif</title>
+    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+    
+    <style>
+      :root {
+        --primary: #2ecc71;
+        --secondary: #3498db;
+        --danger: #e74c3c;
+        --warning: #f1c40f;
+        --glass: rgba(255, 255, 255, 0.2);
+        --glass-border: rgba(255, 255, 255, 0.3);
+      }
+
+      body { margin: 0; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; overflow: hidden; }
+
+      /* Instruksi Awal / Overlay */
+      #overlay {
+        position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.8); z-index: 1000;
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        color: white; text-align: center; transition: opacity 0.5s;
+      }
+      #overlay img { width: 100px; margin-bottom: 20px; animation: pulse 2s infinite; }
+      #overlay button {
+        padding: 12px 30px; border: none; border-radius: 25px;
+        background: var(--primary); color: white; font-weight: bold; cursor: pointer;
+      }
+
+      /* UI Main Container */
+      #ui-container {
+        position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
+        width: 90%; max-width: 400px; z-index: 100; text-align: center;
+        background: var(--glass); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+        border: 1px solid var(--glass-border); border-radius: 20px; padding: 15px;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+      }
+
+      .header-title { color: white; margin: 0 0 10px 0; font-size: 16px; font-weight: 600; text-shadow: 1px 1px 4px rgba(0,0,0,0.5); }
+
+      .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+      
+      button.food-btn {
+        padding: 12px 5px; border: 1px solid var(--glass-border); border-radius: 12px;
+        background: rgba(255,255,255,0.1); color: white; cursor: pointer;
+        transition: all 0.3s; font-size: 13px; font-weight: 500;
+      }
+      button.food-btn.active { background: var(--primary); border-color: var(--primary); box-shadow: 0 0 15px rgba(46, 204, 113, 0.4); }
+      
+      #progress-wrapper { position: relative; width: 100%; background: rgba(0,0,0,0.3); height: 24px; border-radius: 12px; overflow: hidden; margin-bottom: 5px; }
+      #progress-bar { width: 0%; height: 100%; background: var(--secondary); transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+      #progress-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 12px; font-weight: bold; }
+
+      #info-text {
+        margin-top: 10px; color: #fff; background: var(--primary);
+        padding: 10px; border-radius: 10px; display: none;
+        font-size: 13px; font-weight: 600; animation: slideUp 0.3s;
+      }
+
+      #reset-btn {
+        margin-top: 10px; background: transparent; border: none; color: #ddd;
+        text-decoration: underline; font-size: 11px; cursor: pointer;
+      }
+
+      @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
+      @keyframes slideUp { from { transform: translateY(10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+      .success-anim { animation: successPulse 1s infinite !important; }
+      @keyframes successPulse { 0% { box-shadow: 0 0 0 0 rgba(46, 204, 113, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(46, 204, 113, 0); } 100% { box-shadow: 0 0 0 0 rgba(46, 204, 113, 0); } }
+    </style>
+  </head>
+
+  <body>
+    <div id="overlay">
+      <img src="https://cdn-icons-png.flaticon.com/512/1141/1141944.png" alt="AR icon">
+      <h2>AR-CeTing</h2>
+      <p>Arahkan kamera ke marker piring <br>untuk memulai edukasi gizi</p>
+      <button onclick="startAR()">Mulai Scan</button>
+    </div>
+
+    <div id="ui-container">
+      <h3 class="header-title">🍽️ Susun Menu Balita</h3>
+      <div class="btn-group">
+        <button class="food-btn" id="btn-nasi" onclick="toggleFood('nasi', 40, '🍚')">🍚 Nasi</button>
+        <button class="food-btn" id="btn-telur" onclick="toggleFood('telur', 25, '🍳')">🍳 Telur</button>
+        <button class="food-btn" id="btn-kol" onclick="toggleFood('kol', 20, '🥬')">🥬 Kol</button>
+        <button class="food-btn" id="btn-jeruk" onclick="toggleFood('jeruk', 15, '🍊')">🍊 Jeruk</button>
+      </div>
+      
+      <div id="progress-wrapper">
+        <div id="progress-bar"></div>
+        <div id="progress-text">0% AKG Terpenuhi</div>
+      </div>
+
+      <div id="info-text">✅ Hebat! Menu sesuai Angka Kecukupan Gizi</div>
+      <button id="reset-btn" onclick="resetAll()">Reset Menu</button>
+    </div>
+
+    <a-scene mindar-image="imageTargetSrc: ./targets.mind;" color-space="sRGB" renderer="colorManagement: true, physicallyCorrectLights" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
+      <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+
+      <a-light type="ambient" intensity="0.7"></a-light>
+      <a-light type="directional" position="1 2 1" intensity="0.8"></a-light>
+
+      <a-entity mindar-image-target="targetIndex: 0">
+        <a-gltf-model src="model/piring.glb" scale="3 3 3" rotation="90 180 0"></a-gltf-model>
+
+        <a-entity id="obj-nasi" visible="false" position="-0.4 -0.4 0.1">
+           <a-gltf-model src="model/nasi.glb" scale="0.07 0.07 0.07" rotation="90 0 0"></a-gltf-model>
+           <a-text value="40% AKG" color="#FFF" scale="0.4 0.4 0.4" align="center" position="0 0.5 0" geometry="primitive: plane; width: 0.8; height: 0.2" material="color: #2ecc71; opacity: 0.8"></a-text>
+        </a-entity>
+
+        <a-entity id="obj-telur" visible="false" position="-0.4 0.4 0.1">
+           <a-gltf-model src="model/telur.glb" scale="0.3 0.3 0.3" rotation="90 0 0"></a-gltf-model>
+           <a-text value="25% AKG" color="#FFF" scale="0.4 0.4 0.4" align="center" position="0 0.5 0" geometry="primitive: plane; width: 0.8; height: 0.2" material="color: #f1c40f; opacity: 0.8"></a-text>
+        </a-entity>
+
+        <a-entity id="obj-jeruk" visible="false" position="0.4 0.4 0.1">
+           <a-gltf-model src="model/jeruk.glb" scale="0.02 0.02 0.02" rotation="90 0 0"></a-gltf-model>
+           <a-text value="15% AKG" color="#FFF" scale="0.4 0.4 0.4" align="center" position="0 0.5 0" geometry="primitive: plane; width: 0.8; height: 0.2" material="color: #e67e22; opacity: 0.8"></a-text>
+        </a-entity>
+
+        <a-entity id="obj-kol" visible="false" position="0.4 -0.4 0.1">
+           <a-gltf-model src="model/kol.glb" scale="3 3 3" rotation="90 0 0"></a-gltf-model>
+           <a-text value="20% AKG" color="#FFF" scale="0.4 0.4 0.4" align="center" position="0 0.4 0" geometry="primitive: plane; width: 0.8; height: 0.2" material="color: #27ae60; opacity: 0.8"></a-text>
+        </a-entity>
+      </a-entity>
+    </a-scene>
+
+    <script>
+      let totalAKG = 0;
+      let activeItems = { nasi: false, telur: false, kol: false, jeruk: false };
+
+      function startAR() {
+        document.getElementById('overlay').style.opacity = '0';
+        setTimeout(() => {
+          document.getElementById('overlay').style.display = 'none';
+        }, 500);
+      }
+
+      function toggleFood(item, akg, emoji) {
+        const obj = document.querySelector(`#obj-${item}`);
+        const btn = document.querySelector(`#btn-${item}`);
+
+        if (!activeItems[item]) {
+          obj.setAttribute('visible', true);
+          totalAKG += akg;
+          activeItems[item] = true;
+          btn.classList.add('active');
+        } else {
+          obj.setAttribute('visible', false);
+          totalAKG -= akg;
+          activeItems[item] = false;
+          btn.classList.remove('active');
+        }
+
+        updateUI();
+      }
+
+      function updateUI() {
+        const bar = document.querySelector('#progress-bar');
+        const text = document.querySelector('#progress-text');
+        const info = document.querySelector('#info-text');
+        const container = document.querySelector('#ui-container');
+        
+        // Batasi maksimal 100% untuk display
+        let displayAKG = totalAKG > 100 ? 100 : totalAKG;
+        bar.style.width = displayAKG + '%';
+        text.innerText = totalAKG + '% AKG Terpenuhi';
+
+        if (totalAKG < 50) {
+            bar.style.background = '#e74c3c';
+            container.classList.remove('success-anim');
+        } else if (totalAKG < 100) {
+            bar.style.background = '#f1c40f';
+            container.classList.remove('success-anim');
+        } else {
+            bar.style.background = '#2ecc71';
+        }
+
+        if (totalAKG >= 100) {
+          info.style.display = 'block';
+          container.classList.add('success-anim');
+        } else {
+          info.style.display = 'none';
+          container.classList.remove('success-anim');
+        }
+      }
+
+      function resetAll() {
+        totalAKG = 0;
+        for (let item in activeItems) {
+          activeItems[item] = false;
+          document.querySelector(`#obj-${item}`).setAttribute('visible', false);
+          document.querySelector(`#btn-${item}`).classList.remove('active');
+        }
+        updateUI();
+      }
+    </script>
+  </body>
+</html>
