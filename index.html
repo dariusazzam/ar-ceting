@@ -2,8 +2,8 @@
 <html>
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AR-CeTing Pro - Solusi Stunting 2045</title>
-    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <title>AR-CeTing - Media Edukasi Pencegahan Stunting</title>
+    <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
 
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
@@ -16,6 +16,7 @@
         --warning: #f1c40f;
         --dark: #2c3e50;
         --glass: rgba(255, 255, 255, 0.15);
+        --glass-dark: rgba(0, 0, 0, 0.8);
       }
 
       body { margin: 0; font-family: 'Segoe UI', sans-serif; overflow: hidden; background-color: #000; }
@@ -24,9 +25,40 @@
       #loading-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--dark); z-index: 2000; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; }
       .spinner { width: 50px; height: 50px; border: 5px solid var(--glass); border-top: 5px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px; }
 
-      /* Overlay */
-      #overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to bottom, rgba(0,0,0,0.7), rgba(0,0,0,0.9)); z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; text-align: center; padding: 20px; box-sizing: border-box; transition: 0.5s; }
-      #overlay h2 { margin: 0; font-size: 28px; color: var(--primary); }
+      /* Overlay / Lobi & Panduan */
+      #overlay { 
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+        background: var(--glass-dark); backdrop-filter: blur(10px); 
+        z-index: 1500; display: flex; flex-direction: column; align-items: center; justify-content: center; 
+        color: white; text-align: center; padding: 30px; box-sizing: border-box; transition: 0.5s; 
+      }
+      
+      .instruction-box { text-align: left; background: rgba(255,255,255,0.1); padding: 20px; border-radius: 20px; margin: 20px 0; max-width: 320px; }
+      .instruction-box ol { padding-left: 20px; margin: 0; font-size: 14px; line-height: 1.6; }
+      
+      /* Info Modal */
+      #info-modal {
+        position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+        width: 85%; max-width: 400px; max-height: 70vh; overflow-y: auto;
+        background: var(--dark); border: 2px solid var(--primary); border-radius: 28px;
+        padding: 25px; z-index: 1600; color: white; display: none;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+      }
+
+      .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+      .close-x { font-size: 24px; cursor: pointer; color: var(--danger); font-weight: bold; }
+
+      /* Floating Buttons */
+      .top-btns { position: absolute; top: 20px; width: 100%; display: flex; justify-content: space-between; padding: 0 20px; box-sizing: border-box; z-index: 101; }
+      .circle-btn { width: 45px; height: 45px; background: var(--glass); backdrop-filter: blur(5px); border-radius: 50%; border: 1px solid rgba(255,255,255,0.3); color: white; display: flex; align-items: center; justify-content: center; font-size: 18px; cursor: pointer; }
+
+      /* Styling Ikon Logo */
+      .app-logo {
+        width: 90px; height: 90px; border-radius: 22px; margin-bottom: 10px;
+        background: var(--dark); border: 3px solid var(--primary);
+        box-shadow: 0 0 20px rgba(46, 204, 113, 0.4); object-fit: cover;
+        animation: pulse 2.5s infinite ease-in-out;
+      }
 
       /* UI Panel */
       #ui-panel {
@@ -34,49 +66,33 @@
         width: 92%; max-width: 420px; z-index: 100;
         background: var(--glass); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
         border: 1px solid rgba(255,255,255,0.2); border-radius: 24px; padding: 15px;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.4); 
-        transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s ease;
-        will-change: transform;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.4); transition: 0.5s;
       }
       
-      #minimize-btn {
-        position: absolute; top: -20px; left: 50%; transform: translateX(-50%);
-        width: 40px; height: 40px;
-        background: var(--dark); border: 2px solid var(--glass); border-radius: 50%;
-        display: flex; align-items: center; justify-content: center;
-        color: white; font-size: 18px; cursor: pointer; z-index: 102;
-        transition: transform 0.3s ease;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-      }
+      #minimize-btn { position: absolute; top: -20px; left: 50%; transform: translateX(-50%); width: 40px; height: 40px; background: var(--dark); border: 2px solid var(--glass); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 18px; cursor: pointer; z-index: 102; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
 
       #scan-status { font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; margin: 10px 0; color: var(--danger); text-align: center; }
-
-      #collapsible-content { transition: opacity 0.3s ease, transform 0.4s ease; opacity: 1; }
-      
-      #ui-panel.minimized {
-        transform: translateX(-50%) translateY(calc(100% - 110px));
-      }
-      #ui-panel.minimized #collapsible-content { opacity: 0; pointer-events: none; transform: translateY(20px); }
-      #ui-panel.minimized #minimize-btn { transform: translateX(-50%) rotate(180deg); }
+      #collapsible-content { transition: 0.3s; opacity: 1; }
+      #ui-panel.minimized { transform: translateX(-50%) translateY(calc(100% - 110px)); }
+      #ui-panel.minimized #collapsible-content { opacity: 0; pointer-events: none; }
 
       .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; max-height: 250px; overflow-y: auto; padding-right: 5px; }
       .category-label { grid-column: span 2; color: #ddd; font-size: 11px; font-weight: bold; text-align: left; margin-top: 8px; text-transform: uppercase; border-left: 2px solid var(--primary); padding-left: 5px; }
-
-      .food-btn { padding: 12px 8px; border: none; border-radius: 14px; background: rgba(100, 100, 100, 0.4); color: rgba(255, 255, 255, 0.3); cursor: not-allowed; transition: 0.3s; font-size: 12px; font-weight: 600; pointer-events: none; display: flex; align-items: center; justify-content: center; gap: 5px; }
+      .food-btn { padding: 12px 8px; border: none; border-radius: 14px; background: rgba(100, 100, 100, 0.4); color: rgba(255, 255, 255, 0.3); cursor: not-allowed; transition: 0.3s; font-size: 12px; font-weight: 600; pointer-events: none; }
       .food-btn.unlocked { background: rgba(0,0,0,0.4); color: white; cursor: pointer; pointer-events: auto; }
       .food-btn.active { background: var(--primary); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(46,204,113,0.3); }
 
       .status-box { display: flex; justify-content: space-between; align-items: center; color: white; font-size: 12px; margin-bottom: 8px; }
       #progress-wrap { width: 100%; background: rgba(255,255,255,0.1); height: 10px; border-radius: 5px; overflow: hidden; position: relative; }
       #progress-fill { width: 0%; height: 100%; background: var(--secondary); transition: 0.6s ease; }
-
       #msg-box { padding: 10px; border-radius: 12px; margin-top: 10px; font-size: 11px; font-weight: bold; display: none; text-align: center; animation: slideUp 0.3s; }
 
-      #eye-btn { position: absolute; top: 20px; right: 20px; width: 45px; height: 45px; background: var(--glass); backdrop-filter: blur(5px); border-radius: 50%; border: 1px solid rgba(255,255,255,0.3); color: white; display: flex; align-items: center; justify-content: center; font-size: 20px; z-index: 101; }
+      .edu-link { display: block; background: var(--primary); color: white; text-decoration: none; padding: 10px; border-radius: 10px; margin-top: 10px; font-size: 12px; font-weight: bold; }
 
       @keyframes spin { 100% { transform: rotate(360deg); } }
       @keyframes slideUp { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-      .hidden { opacity: 0 !important; transform: translate(-50%, 100px) scale(0.9) !important; pointer-events: none; }
+      @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+      .hidden { opacity: 0 !important; pointer-events: none; }
     </style>
   </head>
 
@@ -84,12 +100,51 @@
     <div id="loading-screen"><div class="spinner"></div><span>Menyiapkan Engine AR...</span></div>
 
     <div id="overlay">
-      <h2>AR-CeTing</h2>
-      <p>Arahkan kamera ke piring untuk <br>menyusun menu gizi Si Kecil</p>
-      <button style="padding: 15px 40px; border:none; border-radius:30px; background:var(--primary); color:white; font-weight:bold; cursor:pointer;" onclick="startApp()">MULAI SEKARANG</button>
+      <div class="close-x" style="position:absolute; top:20px; right:20px;" onclick="closeOverlay()">✕</div>
+      <img src="/assets/logo_ar-ceting.png" class="app-logo" alt="Logo">
+      <h2>Selamat Datang</h2>
+      <div class="instruction-box">
+        <strong>Cara Penggunaan:</strong>
+        <ol>
+          <li>Arahkan kamera ke piring kosong pada marker.</li>
+          <li>Tunggu status berubah jadi ✅ (Terdeteksi) dan muncul objek 3D piring pada layar.</li>
+          <li>Klik makanan untuk menyusun menu pada piring.</li>
+          <li>Pantau indikator AKG di panel bawah.</li>
+        </ol>
+      </div>
+      <button style="padding: 15px 40px; border:none; border-radius:30px; background:var(--primary); color:white; font-weight:bold; cursor:pointer;" onclick="closeOverlay()">MULAI SEKARANG</button>
     </div>
 
-    <div id="eye-btn" onclick="toggleTotalUI()">👁️</div>
+    <div id="info-modal">
+      <div class="modal-header">
+        <h3 style="margin:0; color:var(--primary);">💡 Edukasi Gizi</h3>
+        <span class="close-x" onclick="toggleInfo()">✕</span>
+      </div>
+      <p style="font-size:13px; line-height:1.5;">
+        <strong>Apa itu Stunting?</strong><br>
+        Gangguan pertumbuhan pada anak akibat kekurangan gizi kronis dalam waktu lama.
+        <br><br>
+        <strong>Konsep Isi Piringku:</strong><br>
+        Pedoman gizi seimbang: 35% Makanan Pokok, 35% Sayuran, 15% Lauk Pauk, dan 15% Buah-buahan.
+        <br><br>
+        <strong>Anjuran Tambahan:</strong><br>
+        Minum air 8 gelas sehari, cuci tangan pakai sabun, dan aktivitas fisik 30 menit per hari.
+      </p>
+      <hr style="border:0; border-top:1px solid rgba(255,255,255,0.1);">
+      <p style="font-size:11px; color:#bbb;">Pelajari lebih lanjut:</p>
+      <a href="https://stunting.go.id" target="_blank" class="edu-link">🌐 Portal Stunting Indonesia</a>
+      <a href="https://lekminkes.dinkes.semarangkota.go.id/home/stunting?bulan=01&tahun=2026" target="_blank" class="edu-link">📊 Data Stunting Kota Semarang</a>
+      <a href="https://ayosehat.kemkes.go.id" target="_blank" class="edu-link">🏥 Ayo Sehat (Kementerian Kesehatan RI)</a>
+      <a href="https://ayosehat.kemkes.go.id/isi-piringku-pedoman-makan-kekinian-orang-indonesia" target="_blank" class="edu-link" style="background:var(--secondary);">🍽 Isi Piringku (Kemkes)</a>
+    </div>
+
+    <div class="top-btns">
+      <div style="display:flex; gap:10px;">
+        <div class="circle-btn" onclick="toggleInfo()">i</div>
+        <div class="circle-btn" onclick="showHelp()">?</div>
+      </div>
+      <div class="circle-btn" id="eye-btn" onclick="toggleTotalUI()">👁️</div>
+    </div>
 
     <div id="ui-panel">
       <div id="minimize-btn" onclick="toggleMinimize()">▾</div>
@@ -127,10 +182,9 @@
           <button class="food-btn" id="btn-apel" onclick="hapticToggle('apel', 15, 'buah')">Apel</button>
           <button class="food-btn" id="btn-semangka" onclick="hapticToggle('semangka', 15, 'buah')">Semangka</button>
         </div>
-
         <div style="display:flex; justify-content:space-between; align-items:center; margin-top:15px;">
           <button onclick="resetApp()" style="background:none; border:none; color:#bbb; font-size:11px; cursor:pointer;">🔄 Reset Menu</button>
-          <span style="color:rgba(255,255,255,0.3); font-size:9px;">AR-CeTing v1.2</span>
+          <span style="color:rgba(255,255,255,0.3); font-size:9px;">AR-CeTing v1.3</span>
         </div>
       </div>
     </div>
@@ -140,37 +194,17 @@
       <a-light type="ambient" intensity="1"></a-light>
       <a-light type="directional" position="0 10 0" intensity="0.5"></a-light>
       <a-entity mindar-image-target="targetIndex: 0" id="ar-target">
-        <a-gltf-model src="model/piring.glb" scale="2.6 2.6 2.6" rotation="-90 180 0"></a-gltf-model>
+        <a-gltf-model src="models/piring.glb" scale="2.6 2.6 2.6" rotation="-90 180 0"></a-gltf-model>
         <a-entity position="-0.4 -0.4 0.1">
-          <a-gltf-model id="obj-nasi" visible="false" src="model/nasi.glb" scale="0.05 0.05 0.05" rotation="90 0 0"></a-gltf-model>
-          <a-gltf-model id="obj-ubi" visible="false" src="model/ubi.glb" scale="4 4 4" rotation="90 0 0"></a-gltf-model>
-          <a-gltf-model id="obj-kentang" visible="false" src="model/kentang.glb" scale="0.2 0.2 0.2" rotation="0 0 0"></a-gltf-model>
-          <a-gltf-model id="obj-roti" visible="false" src="model/roti.glb" scale="0.01 0.01 0.01" rotation="90 0 0"></a-gltf-model>
-        </a-entity>
-        <a-entity position="-0.4 0.4 0.1">
-          <a-gltf-model id="obj-telur" visible="false" src="model/telur.glb" scale="0.3 0.3 0.3" rotation="90 0 0"></a-gltf-model>
-          <a-gltf-model id="obj-ayam" visible="false" src="model/ayam.glb" scale="5 5 5" rotation="90 0 0"></a-gltf-model>
-          <a-gltf-model id="obj-ikan" visible="false" src="model/ikan.glb" scale="0.15 0.15 0.15" rotation="270 -60 0"></a-gltf-model>
-          <a-gltf-model id="obj-daging" visible="false" src="model/daging.glb" scale="0.03 0.03 0.03" rotation="90 0 0"></a-gltf-model>
-        </a-entity>
-        <a-entity position="0.4 0.4 0.1">
-          <a-gltf-model id="obj-jeruk" visible="false" src="model/jeruk.glb" scale="0.02 0.02 0.02" rotation="90 0 0"></a-gltf-model>
-          <a-gltf-model id="obj-pisang" visible="false" src="model/pisang.glb" scale="0.5 0.5 0.5" rotation="180 0 0"></a-gltf-model>
-          <a-gltf-model id="obj-apel" visible="false" src="model/apel.glb" scale="0.015 0.015 0.015" rotation="90 0 0"></a-gltf-model>
-          <a-gltf-model id="obj-semangka" visible="false" src="model/semangka.glb" scale="0.001 0.001 0.001" rotation="90 0 0"></a-gltf-model>
-        </a-entity>
-        <a-entity position="0.4 -0.4 0.1">
-          <a-gltf-model id="obj-kol" visible="false" src="model/kol.glb" scale="3 3 3" rotation="90 0 0"></a-gltf-model>
-          <a-gltf-model id="obj-wortel" visible="false" src="model/wortel.glb" scale="0.05 0.05 0.05" rotation="90 0 0"></a-gltf-model>
-          <a-gltf-model id="obj-brokoli" visible="false" src="model/brokoli.glb" scale="1 1 1" rotation="45 0 0"></a-gltf-model>
-        </a-entity>
+          <a-gltf-model id="obj-nasi" visible="false" src="models/nasi.glb" scale="0.05 0.05 0.05" rotation="90 0 0"></a-gltf-model>
+          <a-gltf-model id="obj-ubi" visible="false" src="models/ubi.glb" scale="4 4 4" rotation="90 0 0"></a-gltf-model>
+          </a-entity>
       </a-entity>
     </a-scene>
 
     <script>
       let totalAKG = 0;
       let activeItems = {}; 
-      // Variabel baru untuk melacak jumlah item per kategori
       let categoryCounts = { pokok: 0, lauk: 0, sayur: 0, buah: 0 };
       let totalUIVisible = true;
       let isMinimized = false;
@@ -179,13 +213,13 @@
       const scanStatus = document.querySelector('#scan-status');
       const foodBtns = document.querySelectorAll('.food-btn');
 
-      targetEl.addEventListener("targetFound", event => {
+      targetEl.addEventListener("targetFound", () => {
         scanStatus.innerText = "✅ Piring terdeteksi";
         scanStatus.style.color = "#2ecc71";
         foodBtns.forEach(btn => btn.classList.add('unlocked'));
       });
 
-      targetEl.addEventListener("targetLost", event => {
+      targetEl.addEventListener("targetLost", () => {
         scanStatus.innerText = "⚠️ Piring belum terdeteksi";
         scanStatus.style.color = "#e74c3c";
         foodBtns.forEach(btn => btn.classList.remove('unlocked'));
@@ -195,15 +229,25 @@
         document.getElementById('loading-screen').style.display = 'none';
       });
 
-      function startApp() {
+      function closeOverlay() {
         document.getElementById('overlay').style.opacity = '0';
         setTimeout(() => document.getElementById('overlay').style.display = 'none', 500);
       }
 
+      function showHelp() {
+        const overlay = document.getElementById('overlay');
+        overlay.style.display = 'flex';
+        setTimeout(() => overlay.style.opacity = '1', 10);
+      }
+
+      function toggleInfo() {
+        const modal = document.getElementById('info-modal');
+        modal.style.display = (modal.style.display === 'block') ? 'none' : 'block';
+      }
+
       function toggleMinimize() {
-        const panel = document.getElementById('ui-panel');
         isMinimized = !isMinimized;
-        panel.classList.toggle('minimized', isMinimized);
+        document.getElementById('ui-panel').classList.toggle('minimized', isMinimized);
         document.getElementById('minimize-btn').innerText = isMinimized ? '▲' : '▼';
       }
 
@@ -213,23 +257,21 @@
         document.getElementById('eye-btn').innerText = totalUIVisible ? '👁️' : '📲';
       }
 
-      // Fungsi hapticToggle sekarang menerima kategori
       function hapticToggle(item, akg, category) {
         if (window.navigator.vibrate) window.navigator.vibrate(50);
         const obj = document.querySelector(`#obj-${item}`);
         const btn = document.querySelector(`#btn-${item}`);
-
         if (!activeItems[item]) {
           obj.setAttribute('visible', true);
           totalAKG += akg;
           activeItems[item] = true;
-          categoryCounts[category]++; // Tambah hitungan kategori
+          categoryCounts[category]++;
           btn.classList.add('active');
         } else {
           obj.setAttribute('visible', false);
           totalAKG -= akg;
           activeItems[item] = false;
-          categoryCounts[category]--; // Kurangi hitungan kategori
+          categoryCounts[category]--;
           btn.classList.remove('active');
         }
         updateLogic();
@@ -240,57 +282,39 @@
         const label = document.querySelector('#pct-label');
         const msg = document.querySelector('#msg-box');
         const status = document.getElementById('status-label');
-
         let displayVal = totalAKG > 100 ? 100 : totalAKG;
         bar.style.width = displayVal + '%';
         label.innerText = totalAKG + '% AKG';
-
         msg.style.display = totalAKG === 0 ? 'none' : 'block';
 
-        // Logika baru: Cek apakah ada kategori yang isinya lebih dari 1
-        let isIncorrectSelection = false;
-        for (let cat in categoryCounts) {
-          if (categoryCounts[cat] > 1) {
-            isIncorrectSelection = true;
-            break;
-          }
-        }
-
-        if (isIncorrectSelection) {
-          bar.style.background = '#e74c3c'; // Merah
-          msg.innerText = "🚨 Pemilihan menu kurang tepat! Pilih 1 item dari tiap kategori agar gizi seimbang.";
+        let isIncorrect = Object.values(categoryCounts).some(count => count > 1);
+        if (isIncorrect) {
+          bar.style.background = 'var(--danger)';
+          msg.innerText = "🚨 Cukup pilih 1 item dari tiap kategori!";
           msg.style.backgroundColor = 'rgba(231, 76, 60, 0.8)';
-          msg.style.color = 'white';
           status.innerText = "⚠️ Menu Tidak Seimbang";
         } else if (totalAKG === 100) {
-          bar.style.background = '#2ecc71'; // Hijau
-          msg.innerText = "✅ Menu Sesuai Standar Isi Piringku!";
+          bar.style.background = 'var(--primary)';
+          msg.innerText = "✅ Sesuai Standar Isi Piringku!";
           msg.style.backgroundColor = 'rgba(46, 204, 113, 0.8)';
-          msg.style.color = 'white';
           status.innerText = "⭐ Nutrisi Sempurna";
-        } else if (totalAKG < 100) {
-          bar.style.background = '#3498db'; // Biru
-          msg.innerText = "⚠️ Menu Anda kurang dari Angka Kecukupan Gizi.";
-          msg.style.backgroundColor = 'rgba(52, 152, 219, 0.8)';
-          msg.style.color = 'white';
-          status.innerText = "📈 Menuju Seimbang";
         } else {
-          bar.style.background = '#e74c3c'; // Merah
-          msg.innerText = "🚨 Porsi Melebihi AKG Balita!";
-          msg.style.backgroundColor = 'rgba(231, 76, 60, 0.8)';
-          msg.style.color = 'white';
-          status.innerText = "⚠️ Porsi Berlebih";
+          bar.style.background = 'var(--secondary)';
+          msg.innerText = totalAKG < 100 ? "⚠️ Menu Kurang Gizi" : "🚨 Porsi Berlebih";
+          msg.style.backgroundColor = 'rgba(52, 152, 219, 0.8)';
+          status.innerText = "📈 Menuju Seimbang";
         }
       }
 
       function resetApp() {
         totalAKG = 0;
-        // Reset hitungan kategori
         categoryCounts = { pokok: 0, lauk: 0, sayur: 0, buah: 0 };
         Object.keys(activeItems).forEach(k => {
           if (activeItems[k]) {
-            document.querySelector(`#obj-${k}`).setAttribute('visible', false);
-            document.querySelector(`#btn-${k}`).classList.remove('active');
+            const obj = document.querySelector(`#obj-${k}`);
+            if(obj) obj.setAttribute('visible', false);
+            const btn = document.querySelector(`#btn-${k}`);
+            if(btn) btn.classList.remove('active');
             activeItems[k] = false;
           }
         });
